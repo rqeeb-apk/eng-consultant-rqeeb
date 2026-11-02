@@ -1,0 +1,6 @@
+{
+  "name": "Google Account Recovery Assistant",
+  "description": "دليل وأداة تفاعلية للمساعدة في استرجاع حساب Gmail والتحقق عبر رقم الهاتف",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,65 @@
+import { SecurityAlert, NotificationSettings } from '../types';
+
+export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  enabled: false,
+  criticalAlerts: true,
+  platformUpdates: true,
+  securityTips: true,
+};
+
+export const INITIAL_SECURITY_ALERTS: SecurityAlert[] = [
+  {
+    id: 'alert_1',
+    title: '🚨 تنبيه عاجل: حيلة احتيالية جديدة لسحب حسابات واتساب (*21*)',
+    body: 'رصد المهندس رقيب انتشار رسائل احتيالية تدعي فوزك بجائزة أو حل مشكلة في شريحتك وتطلب الاتصال بكود يبدأ بـ *21* لتحويل المكالمات وسرقة كود واتساب. لا تتصل بأي كود مشبوه إطلاقاً.',
+    date: 'منذ ساعتين',
+    type: 'critical',
+    platform: 'whatsapp',
+    linkText: 'عرض دليل حماية واتساب',
+    actionUrl: 'https://faq.whatsapp.com/1131652977717250',
+    read: false,
+  },
+  {
+    id: 'alert_2',
+    title: '🔄 تحديث استرجاع إنستغرام: اعتماد التحقق بفيديو السيلفي رسمياً',
+    body: 'حدثت شركة Meta خوارزمية الذكاء الاصطناعي لمطابقة ملامح الوجه في فيديو السيلفي (Video Selfie) لفك قفل المصادقة الثنائية 2FA الذي وضعه المخترق خلال أقل من 12 ساعة.',
+    date: 'أمس',
+    type: 'update',
+    platform: 'instagram',
+    linkText: 'فتح بوابة إنستغرام الرسمية',
+    actionUrl: 'https://www.instagram.com/hacked',
+    read: false,
+  },
+  {
+    id: 'alert_3',
+    title: '🚨 تحذير أمني: صفحات تصيد وهمية تدعي استرجاع حسابات فيسبوك وجوجل',
+    body: 'تأكد دائماً أن الرابط ينتهي بـ .google.com أو .facebook.com. أي صفحة تطلب منك كلمة المرور على نطاقات مجهولة هي محاولة سرقة بيانات.',
+    date: 'منذ يومين',
+    type: 'critical',
+    platform: 'google',
+    linkText: 'فحص الرابط الرسمي',
+    actionUrl: 'https://accounts.google.com/signin/recovery',
+    read: true,
+  },
+  {
+    id: 'alert_4',
+    title: '🔄 تحديث Google 2026: مسار استثنائي لتجاوز مفاتيح Passkeys',
+    body: 'أتاحت Google خياراً متقدماً عند النقر على "تجربة طريقة أخرى" يتيح التحقق عبر تاريخ الحساب وكلمة المرور القديمة في حال قيام المخترق بحذف بصمة المالك.',
+    date: 'منذ 4 أيام',
+    type: 'update',
+    platform: 'google',
+    linkText: 'دليل تجاوز مفاتيح Google',
+    actionUrl: 'https://support.google.com/accounts/answer/6294825',
+    read: true,
+  },
+  {
+    id: 'alert_5',
+    title: '💡 نصيحة المهندس رقيب: احتفظ بالرموز الاحتياطية العشرة ورقياً',
+    body: 'قم الآن بتوليد 10 رموز احتياطية لحساباتك وسجلها في ورقة خارجية بعيداً عن الهاتف، فهي تضمن استعادة حسابك حتى لو فُقدت الشريحة أو سُرق الهاتف.',
+    date: 'منذ أسبوع',
+    type: 'tip',
+    linkText: 'توليد الرموز الاحتياطية',
+    actionUrl: 'https://myaccount.google.com/two-step-verification/backup-codes',
+    read: true,
+  },
+];
