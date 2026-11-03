@@ -1,6 +1,6 @@
 {
-  "name": "Google Account Recovery Assistant",
-  "description": "دليل وأداة تفاعلية للمساعدة في استرجاع حساب Gmail والتحقق عبر رقم الهاتف",
+  "name": "المهندس الاستشاري رقيب | استرجاع وتأمين الحسابات المخترقة",
+  "description": "منصة المهندس الاستشاري رقيب لاسترجاع الحسابات المخترقة (Google, Facebook, Instagram, WhatsApp, TikTok, Snapchat, X) والدعم الفني المباشر",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
