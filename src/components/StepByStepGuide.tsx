@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlatformConfig } from '../types';
 import { 
   ShieldCheck, 
@@ -16,7 +16,15 @@ import {
   PlusCircle,
   HeartHandshake,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Navigation,
+  ArrowLeft,
+  ArrowRight,
+  ArrowDown,
+  CornerDownRight,
+  CornerDownLeft,
+  Check,
+  Compass
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTextToSpeech } from '../hooks/useTextToSpeech';
@@ -37,8 +45,40 @@ const PLATFORM_ESTIMATED_MINUTES: Record<string, number> = {
 };
 
 export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatform }) => {
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
   const platformName = language === 'en' && currentPlatform.nameEn ? currentPlatform.nameEn : currentPlatform.nameAr;
+
+  // --- Guided Step Pointer State ---
+  const [guidedStepIdx, setGuidedStepIdx] = useState<number>(0);
+  const totalSteps = currentPlatform.steps.length || 1;
+
+  // Reset guided step on platform change
+  useEffect(() => {
+    setGuidedStepIdx(0);
+  }, [currentPlatform.id]);
+
+  // Navigate to step and smooth scroll
+  const scrollToStep = (stepIdx: number) => {
+    const validIdx = Math.max(0, Math.min(stepIdx, totalSteps - 1));
+    setGuidedStepIdx(validIdx);
+
+    const stepEl = document.getElementById(`step-card-${validIdx + 1}`);
+    if (stepEl) {
+      stepEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const handleNextGuidedStep = () => {
+    if (guidedStepIdx < totalSteps - 1) {
+      scrollToStep(guidedStepIdx + 1);
+    }
+  };
+
+  const handlePrevGuidedStep = () => {
+    if (guidedStepIdx > 0) {
+      scrollToStep(guidedStepIdx - 1);
+    }
+  };
 
   // --- Visual Countdown Timer State ---
   const defaultPlatformMins = PLATFORM_ESTIMATED_MINUTES[currentPlatform.id] || 15;
@@ -78,7 +118,6 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
   // Timer controls
   const toggleTimer = () => {
     if (timeLeftSeconds <= 0) {
-      // Reset if finished
       resetTimer();
       setIsTimerRunning(true);
     } else {
@@ -100,8 +139,7 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
   };
 
   const startStepTimer = (stepIdx: number) => {
-    const stepCount = currentPlatform.steps.length || 1;
-    const stepMins = Math.max(2, Math.round(defaultPlatformMins / stepCount));
+    const stepMins = Math.max(2, Math.round(defaultPlatformMins / totalSteps));
     setTotalSeconds(stepMins * 60);
     setTimeLeftSeconds(stepMins * 60);
     setActiveStepFocusIdx(stepIdx);
@@ -243,9 +281,10 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
 
   // Calculate step estimated duration
   const getStepMins = (stepIdx: number) => {
-    const totalSteps = currentPlatform.steps.length || 1;
     return Math.max(2, Math.round(defaultPlatformMins / totalSteps));
   };
+
+  const activeStep = currentPlatform.steps[guidedStepIdx] || currentPlatform.steps[0];
 
   return (
     <section id="step-roadmap-section" className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-7 shadow-sm mb-8 space-y-6">
@@ -275,6 +314,95 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
               ? `إجمالي الوقت المتوقع للاسترجاع: ~${defaultPlatformMins} دقيقة`
               : `Est. Total Recovery Window: ~${defaultPlatformMins} mins`}
           </span>
+        </div>
+      </div>
+
+      {/* ---------------- INTERACTIVE GUIDED TUTORIAL POINTER (مرشد الخطوات التفاعلي بالسهم) ---------------- */}
+      <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 text-slate-950 p-4 sm:p-5 rounded-2xl border-2 border-amber-400 shadow-lg space-y-3 relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-950 text-amber-400 flex items-center justify-center shrink-0 shadow-md">
+              <Compass className="w-6 h-6 animate-pulse" />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="bg-slate-950 text-amber-300 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  {language === 'ar' ? 'المرشد التعليمي التفاعلي' : 'Interactive Guided Pointer'}
+                </span>
+                <span className="text-xs font-bold text-slate-900">
+                  {language === 'ar' ? `الخطوة ${guidedStepIdx + 1} من ${totalSteps}` : `Step ${guidedStepIdx + 1} of ${totalSteps}`}
+                </span>
+              </div>
+              <h4 className="text-sm sm:text-base font-extrabold text-slate-950 mt-0.5">
+                {activeStep.title}
+              </h4>
+            </div>
+          </div>
+
+          {/* Interactive Step Navigation Controls */}
+          <div className="flex items-center gap-2 self-start lg:self-auto w-full lg:w-auto justify-between lg:justify-end">
+            <button
+              onClick={handlePrevGuidedStep}
+              disabled={guidedStepIdx === 0}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition ${
+                guidedStepIdx === 0
+                  ? 'bg-amber-400/50 text-amber-900 cursor-not-allowed opacity-60'
+                  : 'bg-slate-950 text-white hover:bg-slate-900 cursor-pointer shadow-md'
+              }`}
+              id="btn-guided-prev-step"
+            >
+              {dir === 'rtl' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <span>{language === 'ar' ? 'الخطوة السابقة' : 'Previous Step'}</span>
+            </button>
+
+            <button
+              onClick={handleNextGuidedStep}
+              disabled={guidedStepIdx >= totalSteps - 1}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition ${
+                guidedStepIdx >= totalSteps - 1
+                  ? 'bg-amber-400/50 text-amber-900 cursor-not-allowed opacity-60'
+                  : 'bg-slate-950 text-amber-300 hover:bg-slate-900 cursor-pointer shadow-lg animate-pulse'
+              }`}
+              id="btn-guided-next-step"
+            >
+              <span>{language === 'ar' ? 'الخطوة التالية' : 'Next Step'}</span>
+              {dir === 'rtl' ? <ArrowLeft className="w-4 h-4 animate-bounce" /> : <ArrowRight className="w-4 h-4 animate-bounce" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Step Progress Bar & Clickable Step Pills */}
+        <div className="pt-1 border-t border-amber-400/60 flex flex-wrap items-center gap-1.5">
+          {currentPlatform.steps.map((st, idx) => {
+            const isCompleted = idx < guidedStepIdx;
+            const isCurrent = idx === guidedStepIdx;
+
+            return (
+              <button
+                key={st.stepNumber}
+                onClick={() => scrollToStep(idx)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  isCurrent
+                    ? 'bg-slate-950 text-amber-300 ring-2 ring-slate-950 shadow-md font-extrabold'
+                    : isCompleted
+                    ? 'bg-emerald-800 text-emerald-100 hover:bg-emerald-700'
+                    : 'bg-amber-400/80 hover:bg-amber-300 text-slate-900'
+                }`}
+                title={st.title}
+              >
+                {isCompleted ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-300" />
+                ) : (
+                  <span className="w-4 h-4 rounded-full bg-amber-200/40 text-slate-950 flex items-center justify-center text-[10px] font-mono">
+                    {st.stepNumber}
+                  </span>
+                )}
+                <span className="hidden sm:inline max-w-[120px] truncate">{st.title}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -473,19 +601,24 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
         </div>
       )}
 
-      {/* ---------------- STEPS LIST WITH PER-STEP TIMERS & AUDIO ---------------- */}
+      {/* ---------------- STEPS LIST WITH DIRECTIONAL ARROWS & POINTERS ---------------- */}
       <div className="space-y-4">
         {currentPlatform.steps.map((step, idx) => {
           const isThisStepActive = activeItemIndex === idx;
           const isThisStepSpeaking = isThisStepActive && isSpeaking;
           const isStepTimerFocused = activeStepFocusIdx === idx && isTimerRunning;
+          const isGuidedStep = guidedStepIdx === idx;
+          const isCompletedStep = idx < guidedStepIdx;
           const stepMins = getStepMins(idx);
 
           return (
             <div
               key={step.stepNumber}
-              className={`border rounded-xl p-4 sm:p-5 transition relative overflow-hidden ${
-                isStepTimerFocused
+              id={`step-card-${step.stepNumber}`}
+              className={`border rounded-2xl p-4 sm:p-5 transition-all duration-300 relative overflow-hidden ${
+                isGuidedStep
+                  ? 'border-2 border-amber-500 bg-amber-50/70 shadow-lg ring-4 ring-amber-400/20'
+                  : isStepTimerFocused
                   ? 'border-amber-500 bg-amber-50/40 ring-2 ring-amber-400/40 shadow-md'
                   : isThisStepActive
                   ? 'border-emerald-500 bg-emerald-50/60 ring-2 ring-emerald-400/30 shadow-md'
@@ -493,27 +626,56 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
               }`}
             >
               {/* Active voice or timer indicator bar */}
-              {(isThisStepActive || isStepTimerFocused) && (
+              {(isThisStepActive || isStepTimerFocused || isGuidedStep) && (
                 <div
-                  className={`absolute top-0 left-0 right-0 h-1 animate-pulse ${
-                    isStepTimerFocused
+                  className={`absolute top-0 left-0 right-0 h-1.5 animate-pulse ${
+                    isGuidedStep
+                      ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600'
+                      : isStepTimerFocused
                       ? 'bg-gradient-to-r from-amber-500 to-emerald-500'
                       : 'bg-gradient-to-r from-emerald-500 to-teal-500'
                   }`}
                 ></div>
               )}
 
+              {/* Bouncing Directional Arrow Pointer Banner for Active Guided Step */}
+              {isGuidedStep && (
+                <div className="bg-gradient-to-r from-slate-950 via-amber-950 to-slate-950 text-amber-300 font-bold text-xs p-3 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 shadow-md border border-amber-500/50 mb-3 animate-pulse">
+                  <div className="flex items-center gap-2">
+                    <CornerDownRight className="w-5 h-5 text-amber-400 animate-bounce shrink-0" />
+                    <span>
+                      {language === 'ar'
+                        ? '👇 هذا هو إرشادتك للخطوة الحالية! قم بقراءة التعليمات أدناه ثم انقر على "إكمال والتالي"'
+                        : '👇 Current guided step! Read instructions below then click "Next Step"'}
+                    </span>
+                  </div>
+
+                  {guidedStepIdx < totalSteps - 1 && (
+                    <button
+                      onClick={handleNextGuidedStep}
+                      className="w-full sm:w-auto bg-amber-500 hover:bg-amber-400 text-slate-950 px-3.5 py-1.5 rounded-lg text-xs font-black flex items-center justify-center gap-1 cursor-pointer transition shrink-0 shadow-sm"
+                    >
+                      <span>{language === 'ar' ? 'إكمال والتالي ➔' : 'Complete & Next Step ➔'}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-start gap-3.5">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition ${
-                    isStepTimerFocused
+                  className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition ${
+                    isGuidedStep
+                      ? 'bg-amber-500 text-slate-950 ring-4 ring-amber-200 font-extrabold shadow-md'
+                      : isStepTimerFocused
                       ? 'bg-amber-600 text-white ring-4 ring-amber-100'
                       : isThisStepActive
                       ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
+                      : isCompletedStep
+                      ? 'bg-emerald-700 text-white'
                       : 'bg-slate-900 text-white'
                   }`}
                 >
-                  {step.stepNumber}
+                  {isCompletedStep ? <Check className="w-5 h-5 text-white" /> : step.stepNumber}
                 </div>
 
                 <div className="flex-1 space-y-2">
@@ -522,6 +684,14 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
                       <h4 className="text-sm sm:text-base font-bold text-slate-900">
                         {step.title}
                       </h4>
+
+                      {/* Active Guided Pointer Badge */}
+                      {isGuidedStep && (
+                        <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+                          <Navigation className="w-3 h-3 fill-current text-slate-950 animate-pulse" />
+                          <span>{language === 'ar' ? 'الخطوة المستهدفة الآن' : 'Active Target Step'}</span>
+                        </span>
+                      )}
 
                       {/* Per-Step Estimated Time Badge & Step Timer Trigger */}
                       <button
@@ -583,8 +753,8 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
                     </div>
                   )}
 
-                  {step.actionButton && (
-                    <div className="pt-2">
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+                    {step.actionButton && (
                       <a
                         href={step.actionButton.url}
                         target="_blank"
@@ -595,8 +765,27 @@ export const StepByStepGuide: React.FC<StepByStepGuideProps> = ({ currentPlatfor
                         <span>{step.actionButton.label}</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Step Advance Pointer Button */}
+                    <button
+                      onClick={() => {
+                        if (idx < totalSteps - 1) {
+                          scrollToStep(idx + 1);
+                        } else {
+                          scrollToStep(0);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer"
+                    >
+                      <span>
+                        {idx < totalSteps - 1
+                          ? (language === 'ar' ? 'التوجه للخطوة التالية' : 'Proceed to Next Step')
+                          : (language === 'ar' ? 'العودة للخطوة الأولى' : 'Restart Step Guide')}
+                      </span>
+                      {dir === 'rtl' ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

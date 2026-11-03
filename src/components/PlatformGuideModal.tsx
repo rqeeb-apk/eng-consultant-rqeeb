@@ -165,21 +165,45 @@ export const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({
 
         {/* Scrollable Steps Content */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-3 flex-1 bg-slate-50/60">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 pb-1">
-            <span>{language === 'ar' ? `جميع الخطوات والأدوات المتاحة لحساب ${platform.nameAr}:` : `All available tools and steps for ${platformName}:`}</span>
-            <span>{language === 'ar' ? '(اضغط على أي قسم للانتقال إليه مباشرة)' : '(Click any section to jump directly)'}</span>
+          
+          {/* Guided Arrow Banner */}
+          <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 p-3 rounded-2xl flex items-center justify-between shadow-md mb-2 border border-amber-400">
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-slate-950 text-amber-300 font-extrabold text-xs flex items-center justify-center shrink-0">
+                ↓
+              </span>
+              <div>
+                <span className="text-xs font-black block text-slate-950">
+                  {language === 'ar' ? 'المرشد التوجيهي بالأسهم:' : 'Interactive Guided Pointer:'}
+                </span>
+                <span className="text-[11px] text-slate-900 font-medium block">
+                  {language === 'ar' ? 'انقر على خيار للانتقال المباشر أو اتبع السهم للقسم التالي' : 'Click any option to jump directly or follow the arrows'}
+                </span>
+              </div>
+            </div>
+            <span className="text-[11px] font-black bg-slate-950 text-amber-300 px-3 py-1 rounded-xl">
+              {language === 'ar' ? '7 مراحل استرجاع' : '7 Stages'}
+            </span>
           </div>
 
-          {stepsList.map((step) => {
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 pb-1">
+            <span>{language === 'ar' ? `المراحل المخصصة لاسترجاع حساب ${platform.nameAr}:` : `Recovery stages for ${platformName}:`}</span>
+            <span>{language === 'ar' ? '(انقر للانتقال مباشرة للقسم)' : '(Click to jump)'}</span>
+          </div>
+
+          {stepsList.map((step, sIdx) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.id}
-                className="bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-4 shadow-xs hover:shadow-md transition group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                className="bg-white border border-slate-200 hover:border-amber-400 rounded-2xl p-4 shadow-xs hover:shadow-md transition group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative overflow-hidden"
               >
                 <div className="flex items-start gap-3 flex-1">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${step.color}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${step.color} relative`}>
                     <Icon className="w-5 h-5" />
+                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-slate-950 text-amber-300 font-bold text-[10px] flex items-center justify-center border border-slate-700">
+                      {sIdx + 1}
+                    </span>
                   </div>
 
                   <div className="space-y-1">
@@ -187,7 +211,7 @@ export const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({
                       <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full border border-slate-200">
                         {step.badge}
                       </span>
-                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition">
+                      <h4 className="text-sm font-bold text-slate-900 group-hover:text-amber-600 transition">
                         {step.title}
                       </h4>
                     </div>
@@ -199,7 +223,7 @@ export const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({
 
                 <button
                   onClick={() => scrollToSection(step.id)}
-                  className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
+                  className="w-full sm:w-auto bg-slate-900 group-hover:bg-amber-600 text-white group-hover:text-slate-950 text-xs font-extrabold py-2.5 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
                 >
                   <span>{step.actionLabel}</span>
                   {dir === 'rtl' ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
