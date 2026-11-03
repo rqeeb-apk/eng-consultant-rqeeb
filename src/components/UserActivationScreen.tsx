@@ -21,14 +21,12 @@ interface UserActivationScreenProps {
   onActivate: (identity: string, code: string) => { success: boolean; message: string };
   userSession: UserSession | null;
   ownerConfig: OwnerConfig;
-  onOpenOwnerLogin: () => void;
 }
 
 export const UserActivationScreen: React.FC<UserActivationScreenProps> = ({
   onActivate,
   userSession,
   ownerConfig,
-  onOpenOwnerLogin,
 }) => {
   const { language, t } = useLanguage();
   const [identity, setIdentity] = useState('');
@@ -223,28 +221,17 @@ export const UserActivationScreen: React.FC<UserActivationScreenProps> = ({
               <span>{t('activateBtn')}</span>
             </button>
 
-            {/* Support Links */}
-            <div className="flex items-center gap-3 text-xs">
+            {/* Support Link */}
+            <div className="flex items-center text-xs">
               <a
                 href={ownerConfig.telegramBot}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1"
+                className="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1.5 bg-sky-950/50 px-3 py-1.5 rounded-lg border border-sky-800/50 transition"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>{language === 'ar' ? 'طلب كود عبر التيليجرام' : 'Request Code on Telegram'}</span>
               </a>
-
-              <span className="text-slate-600">|</span>
-
-              <button
-                type="button"
-                onClick={onOpenOwnerLogin}
-                className="text-slate-400 hover:text-white transition font-medium cursor-pointer"
-                id="btn-owner-panel-shortcut"
-              >
-                {t('ownerPanelLoginLink')}
-              </button>
             </div>
           </div>
         </form>

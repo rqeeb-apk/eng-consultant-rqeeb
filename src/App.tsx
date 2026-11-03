@@ -117,7 +117,6 @@ export default function App() {
             onActivate={activateUser}
             userSession={userSession}
             ownerConfig={ownerConfig}
-            onOpenOwnerLogin={() => setShowOwnerModal(true)}
           />
         )}
 
